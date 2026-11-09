@@ -112,7 +112,7 @@ td.num,th.num{text-align:right;white-space:nowrap}
   <div id="brand" class="card"><h1 class="jua">🎢 코스터 데이터 파크</h1><p id="src"></p></div>
 </div>
 
-<nav id="zones" class="card"><h2 class="jua">🗺️ 존 안내도</h2><div id="zlist"></div></nav>
+<nav id="zones" class="card"><h2 class="jua">🗺️ 유형별 존 안내도</h2><div id="zlist"></div></nav>
 <aside id="panel" class="card"></aside>
 
 <div id="help" class="card">
@@ -1034,7 +1034,7 @@ function makeChart(z) {
     const x = 3.2 + k * 3.2;
     const bar = mesh(new THREE.BoxGeometry(2, h, 2), z.color, x, 0.25 + h / 2, 3.2);
     const rank = m.rank(v);
-    bar.userData.tip = `<b>${m.label} (${m.sub})</b><br>${fmt(v, 1)} ${m.unit} · 10개 존 중 ${rank}위<br><small>분모 n = ${fmt(m.n(z.stats))}개 · 막대 높이는 10개 존 최댓값(${fmt(m.max, 1)}${m.unit}) 기준</small>`;
+    bar.userData.tip = `<b>${m.label} (${m.sub})</b><br>${fmt(v, 1)} ${m.unit} · 10개 유형 중 ${rank}위<br><small>분모 n = ${fmt(m.n(z.stats))}개 · 막대 높이는 10개 유형 최댓값(${fmt(m.max, 1)}${m.unit}) 기준</small>`;
     g.add(bar);
     const val = label([`${fmt(v, m.key === 'count' ? 0 : 1)}${m.unit === '개' ? '개' : m.unit === '%' ? '%' : ' ' + m.unit}`], 1.15, { size: 46 });
     val.position.set(x, 0.25 + h + 0.9, 3.2);
@@ -1053,7 +1053,7 @@ function makeChart(z) {
   decs.forEach((d, k) => {
     const h = Math.max(0.05, 5 * counts[k] / cmax);
     const b = mesh(new THREE.BoxGeometry(1.2, h, 1.2), k === peak ? z.color : '#b9c3d3', 2.6 + k * 1.55, 0.2 + h / 2, -3.6);
-    b.userData.tip = `<b>${d}년대 개장</b><br>${counts[k]}개${k === peak ? ' · 이 존에서 가장 많이 생긴 연대' : ''}<br><small>이 존 안에서의 상대 높이 (최대 ${cmax}개)</small>`;
+    b.userData.tip = `<b>${d}년대 개장</b><br>${counts[k]}개${k === peak ? ' · 이 유형에서 가장 많이 생긴 연대' : ''}<br><small>이 유형 안에서의 상대 높이 (최대 ${cmax}개)</small>`;
     g.add(b);
   });
   const dl = label(['개장 연대 1950 → 2020s', `가장 많이 생긴 때: ${decs[peak]}년대`], 1.3, { size: 38 });
@@ -1406,8 +1406,8 @@ document.querySelectorAll('.zbtn').forEach(b => b.onclick = () => select(+b.data
 
 function headline(z) {
   const s = z.stats;
-  for (const m of METRICS) if (m.rank(m.get(s) ?? 0) === 1) return `${m.say(m.get(s))} — 10개 존 중 ${m.best}`;
-  for (const m of METRICS) if ((m.get(s) ?? 0) === m.min) return `${m.say(m.get(s))} — 10개 존 중 ${m.worst}`;
+  for (const m of METRICS) if (m.rank(m.get(s) ?? 0) === 1) return `${m.say(m.get(s))} — 10개 유형 중 ${m.best}`;
+  for (const m of METRICS) if ((m.get(s) ?? 0) === m.min) return `${m.say(m.get(s))} — 10개 유형 중 ${m.worst}`;
   // 1위·꼴찌가 없으면: 전체 코스터 중앙값과 가장 많이 다른 칸으로
   const o = D.overall;
   const cands = [
@@ -1420,14 +1420,14 @@ function headline(z) {
   return `${c.name} ${fmt(c.v, 1)}${c.unit} — 전체 코스터(${fmt(c.all, 1)}${c.unit})보다 ${diff}% ${c.v > c.all ? c.up : c.down}`;
 }
 
-const NOTE = `<div class="note">📌 <b>한계</b> · 영어 위키백과에 문서가 있는 코스터만 들어 있어요(전 세계 전체 아님). · 중앙값은 값이 있는 코스터(n)만으로 계산 · 존 구분은 Type 글자로 묶은 것이라 겹치는 코스터는 먼저 맞는 존 하나에만 들어가요. · 같은 이름 97행(이전·재설치)은 최신 1행만 남김.<br>원본 ${fmt(D.rows_raw)}행 → 정제 ${fmt(D.rows_clean)}행</div>`;
+const NOTE = `<div class="note">📌 <b>한계</b> · 영어 위키백과에 문서가 있는 코스터만 들어 있어요(전 세계 전체 아님). · 중앙값은 값이 있는 코스터(n)만으로 계산 · 유형 구분은 Type 글자로 묶은 것이라 겹치는 코스터는 먼저 맞는 유형 하나에만 들어가요. · 같은 이름 97행(이전·재설치)은 최신 1행만 남김.<br>원본 ${fmt(D.rows_raw)}행 → 정제 ${fmt(D.rows_clean)}행</div>`;
 
 function introPanel() {
   const o = D.overall;
   $('panel').innerHTML = `
     <span class="chip" style="background:#1d2433">공원 안내</span>
     <h2 class="jua">어서 오세요! 🎡</h2>
-    <div class="en">롤러코스터를 종류별 존 10개로 나눠 지었어요</div>
+    <div class="en">롤러코스터를 10개 유형으로 나누고, 유형마다 존 하나씩 지었어요</div>
     <div class="headline">발사형은 가장 빠르고(중앙값 95km/h), 플라잉·윙은 가장 높고 가장 많이 뒤집혀요</div>
     <h3 class="jua" style="margin-top:4px">🏆 공원 기록</h3>
     <div class="grid">
@@ -1441,9 +1441,9 @@ function introPanel() {
     </div>
     <div class="intro">
       <h3 class="jua">보는 법</h3>
-      <p>🎢 <b>모형</b> — 그 종류의 특징을 단순하게 만든 미니어처예요. 열차가 달리는 빠르기는 그 존의 <b>속도 중앙값</b>에 비례해요.</p>
-      <p>📊 <b>앞쪽 막대 4개</b> — 속도 · 높이 · 뒤집힘 비율 · 개수. 막대 높이는 10개 존 중 최댓값 기준이라 존끼리 비교할 수 있어요. 막대에 마우스를 올리면 순위와 n이 나와요.</p>
-      <p>🏙️ <b>뒤쪽 작은 막대</b> — 그 종류가 몇 년대에 많이 생겼는지. 가장 많이 생긴 연대만 존 색이에요.</p>
+      <p>🎢 <b>모형</b> — 그 종류의 특징을 단순하게 만든 미니어처예요. 열차가 달리는 빠르기는 그 유형의 <b>속도 중앙값</b>에 비례해요.</p>
+      <p>📊 <b>앞쪽 막대 4개</b> — 속도 · 높이 · 뒤집힘 비율 · 개수. 막대 높이는 10개 유형 중 최댓값 기준이라 유형끼리 비교할 수 있어요. 막대에 마우스를 올리면 순위와 n이 나와요.</p>
+      <p>🏙️ <b>뒤쪽 작은 막대</b> — 그 종류가 몇 년대에 많이 생겼는지. 가장 많이 생긴 연대만 유형 색이에요.</p>
     </div>${NOTE}`;
 }
 
